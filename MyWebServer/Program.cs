@@ -1,6 +1,4 @@
-﻿using System;
-using System.Net;
-using System.Net.Sockets;
+﻿using MyWebServer.Server;
 using System.Threading.Tasks;
 
 namespace MyWebServer
@@ -9,14 +7,9 @@ namespace MyWebServer
     {
         public static async Task Main()
         {
-            var ipAddress = IPAddress.Parse("127.0.0.1");
-            var port = 8080;
+            var server = new HttpServer("127.0.0.1", 9090);
 
-            var serverListener = new TcpListener(ipAddress, port);
-
-            serverListener.Start();
-
-            var connection = await serverListener.AcceptSocketAsync();
+            await server.Start();
         }
     }
 }
