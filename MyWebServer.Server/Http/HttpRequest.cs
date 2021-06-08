@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 
 namespace MyWebServer.Server.Http
 {
@@ -25,15 +26,27 @@ namespace MyWebServer.Server.Http
             var startLine = lines.First().Split(" ");
 
 
-            var method = parseHttpMethod(startLine[0]);
+            var method = ParseHttpMethod(startLine[0]);
             var url = startLine[1];
 
             var headerLines = lines.Skip(1);
 
-            var headerCollection = ParseHttpHeaderCollection(lines.Skip(1));
+            var headerCollection = ParseHttpHeaders(headerLines);
+
+            var bodyLines = lines.Skip(headerCollection.Count + 2).ToArray();
+
+            var body = string.Join(newLine, bodyLines);
+                
+            return new HttpRequest
+            {
+                Method = method,
+                Url = url,
+                Headers = headerCollection,
+                Body = body
+            };
         }
 
-        private static HttpMethod parseHttpMethod(string method)
+        private static HttpMethod ParseHttpMethod(string method)
         {
             return method.ToUpper() switch
             {
@@ -45,7 +58,7 @@ namespace MyWebServer.Server.Http
             };
         }
 
-        private static HttpHeaderCollection ParseHttpHeaderCollection(IEnumerable<string> headerLines)
+        private static HttpHeaderCollection ParseHttpHeaders(IEnumerable<string> headerLines)
         {
             var headerCollection = new HttpHeaderCollection();
 
