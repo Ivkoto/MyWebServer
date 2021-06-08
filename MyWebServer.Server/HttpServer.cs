@@ -33,7 +33,7 @@ namespace MyWebServer.Server
 
                 var networkStream = connection.GetStream();
 
-                var requestText = await ReadRequest(networkStream);
+                var requestText = await this.ReadRequest(networkStream);
 
                 Console.WriteLine(requestText);
 
@@ -41,7 +41,7 @@ namespace MyWebServer.Server
 
                 await WriteResponse(networkStream);
 
-                connection.Close();
+                connection.Close(); 
             }
         }
 
@@ -50,11 +50,18 @@ namespace MyWebServer.Server
             var bufferLength= 1024;
             var buffer = new byte[bufferLength];
 
+            var totalBytes = 0;
+
             var requestBuilder = new StringBuilder();
 
             while (networkStream.DataAvailable)
             {
                 var bytesRead = await networkStream.ReadAsync(buffer, 0, bufferLength);
+
+                if (totalBytes > 10 * 1024)
+                {
+                    throw new InvalidOperationException("Request is too large.");
+                }
                 
                 requestBuilder.Append(Encoding.UTF8.GetString(buffer, 0, bytesRead));
             }
