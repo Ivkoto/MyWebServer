@@ -62,6 +62,8 @@ namespace MyWebServer.Server
                 {
                     throw new InvalidOperationException("Request is too large.");
                 }
+
+                totalBytes += bytesRead;
                 
                 requestBuilder.Append(Encoding.UTF8.GetString(buffer, 0, bytesRead));
             }
