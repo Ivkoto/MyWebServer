@@ -1,8 +1,7 @@
 ﻿using MyWebServer.Server.Common;
 using MyWebServer.Server.Http;
-using System;
-using System.Collections.Generic;
 using MyWebServer.Server.Responses;
+using System.Collections.Generic;
 
 namespace MyWebServer.Server.Routing
 {
@@ -10,8 +9,8 @@ namespace MyWebServer.Server.Routing
     {
         private readonly Dictionary<HttpMethod, Dictionary<string, HttpResponse>> routes;
 
-        public RoutingTable() =>
-            this.routes = new()
+        public RoutingTable() 
+            => this.routes = new()
             {
                 [HttpMethod.GET] = new(),
                 [HttpMethod.POST] = new(),
@@ -19,34 +18,33 @@ namespace MyWebServer.Server.Routing
                 [HttpMethod.DELETE] = new()
             };
 
-        public IRoutingTable Map(string url, HttpMethod method, HttpResponse response) =>
-            method switch
-            {
-                HttpMethod.GET => this.MapGet(url, response),
-                _ => throw new InvalidOperationException($"Method {method} is not supported.")
-            };
-
-        public IRoutingTable MapGet(string url, HttpResponse response)
+        public IRoutingTable Map(HttpMethod method, string path, HttpResponse response)
         {
-            Guard.AgainstNull(url, nameof(url));
+            Guard.AgainstNull(path, nameof(path));
             Guard.AgainstNull(response, nameof(response));
 
-            this.routes[HttpMethod.GET][url] = response;
+            this.routes[method][path] = response;
 
             return this;
         }
 
+        public IRoutingTable MapGet(string path, HttpResponse response)
+            => Map(HttpMethod.GET, path, response);
+
+        public IRoutingTable MapPost(string path, HttpResponse response)
+            => Map(HttpMethod.POST, path, response);
+
         public HttpResponse MatchRequest(HttpRequest request)
         {
             var method = request.Method;
-            var url = request.Url;
+            var path = request.Path;
 
-            if (!this.routes.ContainsKey(method) || !this.routes[method].ContainsKey(url))
+            if (!this.routes.ContainsKey(method) || !this.routes[method].ContainsKey(path))
             {
                 return new NotFoundResponse();
             }
 
-            return this.routes[method][url];
+            return this.routes[method][path];
         }
     }
 }

@@ -11,7 +11,9 @@ namespace MyWebServer.Server.Http
 
         public HttpMethod Method { get; private set; }
 
-        public string Url { get; private set; }
+        public string Path { get; private set; }
+
+        public Dictionary<string, string> Query { get; private set; }
 
         public HttpHeaderCollection Headers { get; private set; }
 
@@ -26,7 +28,10 @@ namespace MyWebServer.Server.Http
 
 
             var method = ParseHttpMethod(startLine[0]);
+
             var url = startLine[1];
+
+            var (path, query) = ParseUrl(url);
 
             var headerLines = lines.Skip(1);
 
@@ -39,7 +44,8 @@ namespace MyWebServer.Server.Http
             return new HttpRequest
             {
                 Method = method,
-                Url = url,
+                Path = path,
+                Query = query,
                 Headers = headerCollection,
                 Body = body
             };
@@ -56,6 +62,24 @@ namespace MyWebServer.Server.Http
                 _ => throw new InvalidOperationException($"Method {method} is not supported.")
             };
         }
+
+        private static (string, Dictionary<string, string>) ParseUrl(string url)
+        {
+            var urlParts = url.Split("?");
+
+            var path = urlParts[0];
+
+            var query = urlParts.Length > 1 ? ParseQuery(urlParts[1]) : new Dictionary<string, string>();
+
+            return (path, query);
+        }
+        //name = Ivan   age = 25
+        private static Dictionary<string, string> ParseQuery(string queryString)
+            => queryString
+                .Split('&')
+                .Select(p => p.Split('='))
+                .Where(p => p.Length == 2)
+                .ToDictionary(p => p[0], p => p[1]);
 
         private static HttpHeaderCollection ParseHttpHeaders(IEnumerable<string> headerLines)
         {
@@ -74,7 +98,7 @@ namespace MyWebServer.Server.Http
                 {
                     throw new InvalidOperationException("Request is not valid.");
                 }
-                
+
                 var headerName = headerParts[0];
                 var headerValue = headerParts[1].Trim();
 
