@@ -4,7 +4,7 @@ namespace MyWebServer.Server.Routing
 {
     public interface IRoutingTable
     {
-        void Map(string url, HttpMethod method, HttpResponse response);
+        IRoutingTable Map(string url, HttpMethod method, HttpResponse response);
 
         IRoutingTable MapGet(string url, HttpResponse response);
     }
