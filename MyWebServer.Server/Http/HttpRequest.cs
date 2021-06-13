@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.CompilerServices;
 
 namespace MyWebServer.Server.Http
 {
@@ -36,7 +35,7 @@ namespace MyWebServer.Server.Http
             var bodyLines = lines.Skip(headerCollection.Count + 2).ToArray();
 
             var body = string.Join(newLine, bodyLines);
-                
+
             return new HttpRequest
             {
                 Method = method,
@@ -75,22 +74,14 @@ namespace MyWebServer.Server.Http
                 {
                     throw new InvalidOperationException("Request is not valid.");
                 }
-
-                var header = new HttpHeader()
-                {
-                    Name = headerParts[0],
-                    Value = headerParts[1].Trim()
-                };
                 
-                headerCollection.Add(header);
+                var headerName = headerParts[0];
+                var headerValue = headerParts[1].Trim();
+
+                headerCollection.Add(headerName, headerValue);
             }
 
             return headerCollection;
         }
-
-        //public static string[] GetStartLine(string request)
-        //{
-
-        //}
     }
 }

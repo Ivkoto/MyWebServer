@@ -1,9 +1,10 @@
-﻿using System;
+﻿using MyWebServer.Server.Http;
+using System;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading.Tasks;
-using MyWebServer.Server.Http;
+using MyWebServer.Server.Routing;
 
 namespace MyWebServer.Server
 {
@@ -13,11 +14,21 @@ namespace MyWebServer.Server
         private readonly int port;
         private readonly TcpListener listener;
 
-        public HttpServer(string ipAddress, int port)
+        public HttpServer(string ipAddress, int port, Action<IRoutingTable> routingTable)
         {
             this.ipAddress = IPAddress.Parse(ipAddress);
             this.port = port;
             this.listener = new TcpListener(this.ipAddress, this.port);
+        }
+
+        public HttpServer(int port, Action<IRoutingTable> routingTable)
+            : this("127.0.0.1", port, routingTable)
+        {
+        }
+
+        public HttpServer(Action<IRoutingTable> routingTable)
+            : this(5000, routingTable)
+        {
         }
 
         public async Task Start()
@@ -37,24 +48,25 @@ namespace MyWebServer.Server
 
                 Console.WriteLine(requestText);
 
-                var request = HttpRequest.Parse(requestText);
+                
+                // TODO var request = HttpRequest.Parse(requestText);
 
                 await WriteResponse(networkStream);
 
-                connection.Close(); 
+                connection.Close();
             }
         }
 
         private async Task<string> ReadRequest(NetworkStream networkStream)
         {
-            var bufferLength= 1024;
+            var bufferLength = 1024;
             var buffer = new byte[bufferLength];
 
             var totalBytes = 0;
 
             var requestBuilder = new StringBuilder();
 
-            while (networkStream.DataAvailable)
+            do
             {
                 var bytesRead = await networkStream.ReadAsync(buffer, 0, bufferLength);
 
@@ -64,10 +76,11 @@ namespace MyWebServer.Server
                 }
 
                 totalBytes += bytesRead;
-                
-                requestBuilder.Append(Encoding.UTF8.GetString(buffer, 0, bytesRead));
-            }
 
+                requestBuilder.Append(Encoding.UTF8.GetString(buffer, 0, bytesRead));
+
+            } while (networkStream.DataAvailable);
+                
             return requestBuilder.ToString();
         }
 
