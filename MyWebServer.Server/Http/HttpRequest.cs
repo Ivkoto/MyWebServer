@@ -73,7 +73,7 @@ namespace MyWebServer.Server.Http
 
             return (path, query);
         }
-        //name = Ivan   age = 25
+        
         private static Dictionary<string, string> ParseQuery(string queryString)
             => queryString
                 .Split('&')
