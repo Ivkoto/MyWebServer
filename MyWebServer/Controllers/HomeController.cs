@@ -12,5 +12,9 @@ namespace MyWebServer.Controllers
 
 
         public HttpResponse Index() => Text("Hello from Ivo!");
+
+        public HttpResponse ToSoftuni() => Redirect("https://softuni.bg");
+
+        public HttpResponse LocalRedirect() => Redirect("/cats");
     }
 }
