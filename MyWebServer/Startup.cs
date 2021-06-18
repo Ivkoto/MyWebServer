@@ -1,7 +1,7 @@
-﻿using MyWebServer.Server;
-using MyWebServer.Server.Responses;
-using MyWebServer.Server.Results;
+﻿using MyWebServer.Controllers;
+using MyWebServer.Server;
 using System.Threading.Tasks;
+using MyWebServer.Server.Controllers;
 
 namespace MyWebServer
 {
@@ -9,21 +9,9 @@ namespace MyWebServer
     {
         public static async Task Main()
             => await new HttpServer(routes => routes
-                    .MapGet("/", new TextResponse("Hello from Ivo!"))
-                    .MapGet("/Cats", request =>
-                    {
-                        const string nameKey = "Name";
-
-                        var query = request.Query;
-
-                        var catName = query.ContainsKey(nameKey) ? query[nameKey] : "the cats";
-
-                        var result = $"<h1>Hello from the {catName}!</h1>";
-                        //от къде и какво идва в този result по дяволите
-                        return new HtmlResponse(result);
-                    })
-                    .MapGet("/Map", new HtmlResponse("<h2>Hello from the interactive map</h2>"))
-                    )
+                    .MapGet<HomeController>("/", c => c.Index())
+                    .MapGet<AnimalsController>("/Cats", c => c.Cats())
+                    .MapGet<AnimalsController>("/Dogs", c => c.Dogs()))
                 .Start();
     }
 }

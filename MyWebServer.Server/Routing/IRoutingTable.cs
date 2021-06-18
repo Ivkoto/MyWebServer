@@ -1,5 +1,6 @@
-﻿using System;
-using MyWebServer.Server.Http;
+﻿using MyWebServer.Server.Http;
+using System;
+using System.Linq;
 
 namespace MyWebServer.Server.Routing
 {
@@ -7,7 +8,7 @@ namespace MyWebServer.Server.Routing
     {
         IRoutingTable Map(HttpMethod method, string path, HttpResponse response);
 
-        IRoutingTable Map(string path, Func<HttpRequest, HttpResponse> responseFunction);
+        IRoutingTable Map(HttpMethod method, string path, Func<HttpRequest, HttpResponse> responseFunction);
 
         IRoutingTable MapGet(string path, HttpResponse response);
 
@@ -15,6 +16,7 @@ namespace MyWebServer.Server.Routing
 
         IRoutingTable MapPost(string path, HttpResponse response);
 
-        IRoutingTable MapPost(string path, Func<HttpResponse, HttpRequest> responseFunction);
+        IRoutingTable MapPost(string path, Func<HttpRequest, HttpResponse> responseFunction);
+
     }
 }

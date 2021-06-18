@@ -1,6 +1,6 @@
 ﻿using MyWebServer.Server.Responses;
 
-namespace MyWebServer.Server.Results
+namespace MyWebServer.Server.Responses
 {
     public class TextResponse : ContentResponse
     {
