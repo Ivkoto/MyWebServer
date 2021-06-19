@@ -1,4 +1,5 @@
-﻿using MyWebServer.Server;
+﻿using MyWebServer.Models;
+using MyWebServer.Server;
 using MyWebServer.Server.Controllers;
 using MyWebServer.Server.Http;
 using MyWebServer.Server.Responses;
@@ -16,15 +17,21 @@ namespace MyWebServer.Controllers
         public HttpResponse Cats()
         {
             const string nameKey = "Name";
+            const string ageKey = "Age";
 
             var query = this.Request.Query;
 
             var catName = query.ContainsKey(nameKey) ? query[nameKey] : "the cats";
 
-            var result = $"<h1>Hello from the {catName}!</h1>";
+            var catAge = query.ContainsKey(ageKey) ? int.Parse(query[ageKey]) : 0;
 
-            //от къде и какво идва в този result по дяволите
-            return new HtmlResponse(result);
+            var viewModel = new CatViewModel()
+            {
+                Name = catName,
+                Age = catAge
+            };
+
+            return View(viewModel);
 
         }
 

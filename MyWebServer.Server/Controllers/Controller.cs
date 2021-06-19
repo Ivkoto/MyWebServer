@@ -24,7 +24,16 @@ namespace MyWebServer.Server.Controllers
 
 
         protected HttpResponse View([CallerMemberName]string viewName = "") 
-            =>new ViewResponse(viewName,this.GetControllerName());
+            =>new ViewResponse(viewName,this.GetControllerName(), null);
+
+        protected HttpResponse View(string viewName, object model) 
+            =>new ViewResponse(viewName,this.GetControllerName(), model);
+
+
+        protected HttpResponse View(object model, [CallerMemberName]string viewName = "") 
+            =>new ViewResponse(viewName,this.GetControllerName(), model);
+
+
 
 
         private string GetControllerName()
