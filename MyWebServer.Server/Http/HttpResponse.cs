@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Text;
+using MyWebServer.Server.Common;
 
 namespace MyWebServer.Server.Http
 {
@@ -13,11 +14,11 @@ namespace MyWebServer.Server.Http
             this.Headers.Add("Date", $"{DateTime.Now.Date:R}");
         }
 
-        public HttpStatusCode StatusCode { get; init; }
+        public HttpStatusCode StatusCode { get; protected set; }
 
         public HttpHeaderCollection Headers { get; } = new();
 
-        public string Content { get; init; }
+        public string Content { get; protected set; }
 
         public override string ToString()
         {
@@ -37,6 +38,20 @@ namespace MyWebServer.Server.Http
             }
 
             return result.ToString();
+        }
+
+
+        protected void PrepareContent(string content, string contentType)
+        {
+            Guard.AgainstNull(content, nameof(content));
+            Guard.AgainstNull(contentType, nameof(contentType));
+
+            var contentLength = Encoding.UTF8.GetByteCount(content).ToString();
+
+            this.Headers.Add("Content-Type", contentType);
+            this.Headers.Add("Content-Length", contentLength);
+
+            this.Content = content;
         }
     }
 }

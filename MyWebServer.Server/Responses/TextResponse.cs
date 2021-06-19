@@ -1,4 +1,5 @@
-﻿using MyWebServer.Server.Responses;
+﻿using MyWebServer.Server.Http;
+using MyWebServer.Server.Responses;
 
 namespace MyWebServer.Server.Responses
 {
@@ -6,7 +7,7 @@ namespace MyWebServer.Server.Responses
     {
 
         public TextResponse(string text)
-            : base(text, "text/plain; charset=UTF-8")
+            : base(text, HttpContentType.PlainText)
         {
         }
     }
