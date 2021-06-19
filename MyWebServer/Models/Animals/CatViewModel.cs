@@ -1,4 +1,4 @@
-﻿namespace MyWebServer.Models
+﻿namespace MyWebServer.Models.Animals
 {
     public class CatViewModel
     {
