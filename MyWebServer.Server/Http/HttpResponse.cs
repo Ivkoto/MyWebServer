@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Text;
 using MyWebServer.Server.Common;
 
@@ -10,15 +11,16 @@ namespace MyWebServer.Server.Http
         {
             this.StatusCode = statusCode;
 
-            this.Headers.Add("Server", "My Web Server");
-            this.Headers.Add("Date", $"{DateTime.Now.Date:R}");
+            this.Headers.Add(HttpHeader.Server, new HttpHeader(HttpHeader.Server,"My Web Server"));
+            this.Headers.Add(HttpHeader.Date, new HttpHeader(HttpHeader.Date, $"{DateTime.Now:r}"));
         }
 
         public HttpStatusCode StatusCode { get; protected set; }
 
-        public HttpHeaderCollection Headers { get; } = new();
+        public IDictionary<string, HttpHeader> Headers { get; } = new Dictionary<string, HttpHeader>();
 
         public string Content { get; protected set; }
+
 
         public override string ToString()
         {
@@ -26,7 +28,7 @@ namespace MyWebServer.Server.Http
 
             result.AppendLine($"HTTP/1.1 {(int) this.StatusCode} {this.StatusCode}");
 
-            foreach (var header in this.Headers)
+            foreach (var header in this.Headers.Values)
             {
                 result.AppendLine(header.ToString());
             }
@@ -39,7 +41,7 @@ namespace MyWebServer.Server.Http
 
             return result.ToString();
         }
-
+        
 
         protected void PrepareContent(string content, string contentType)
         {
@@ -48,8 +50,8 @@ namespace MyWebServer.Server.Http
 
             var contentLength = Encoding.UTF8.GetByteCount(content).ToString();
 
-            this.Headers.Add("Content-Type", contentType);
-            this.Headers.Add("Content-Length", contentLength);
+            this.Headers.Add(HttpHeader.ContentType, new HttpHeader(HttpHeader.ContentType, contentType));
+            this.Headers.Add(HttpHeader.ContentLength, new HttpHeader(HttpHeader.ContentLength, contentType));
 
             this.Content = content;
         }
