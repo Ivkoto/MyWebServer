@@ -19,6 +19,8 @@ namespace MyWebServer.Server.Http
 
         public IReadOnlyDictionary<string, HttpHeader> Headers { get; private set; }
 
+        public IReadOnlyDictionary<string, HttpCookie> Cookies { get; private set; }
+
         public string Body { get; private set; }
 
 
@@ -29,7 +31,7 @@ namespace MyWebServer.Server.Http
             var startLine = lines.First().Split(" ");
 
 
-            var method = ParseHttpMethod(startLine[0]);
+            var method = ParseMethod(startLine[0]);
 
             var url = startLine[1];
 
@@ -37,7 +39,9 @@ namespace MyWebServer.Server.Http
 
             var headerLines = lines.Skip(1);
 
-            var headers = ParseHttpHeaders(headerLines);
+            var headers = ParseHeaders(headerLines);
+
+            var cookies = ParseCookies(headers);
 
             var bodyLines = lines.Skip(headers.Count + 2).ToArray();
 
@@ -51,13 +55,15 @@ namespace MyWebServer.Server.Http
                 Path = path,
                 Query = query,
                 Headers = headers,
+                Cookies = cookies,
                 Body = body,
                 Form = form
             };
         }
 
+        
 
-        private static HttpMethod ParseHttpMethod(string method)
+        private static HttpMethod ParseMethod(string method)
         {
             return method.ToUpper() switch
             {
@@ -65,7 +71,7 @@ namespace MyWebServer.Server.Http
                 "POST" => HttpMethod.POST,
                 "PUT" => HttpMethod.PUT,
                 "Delete" => HttpMethod.DELETE,
-                _ => throw new InvalidOperationException($"Method {method} is not supported.")
+                _ => HttpMethod.GET//throw new InvalidOperationException($"Method {method} is not supported.")
             };
         }
 
@@ -87,7 +93,7 @@ namespace MyWebServer.Server.Http
                 .Where(p => p.Length == 2)
                 .ToDictionary(p => p[0], p => p[1]);
 
-        private static Dictionary<string, HttpHeader> ParseHttpHeaders(IEnumerable<string> headerLines)
+        private static Dictionary<string, HttpHeader> ParseHeaders(IEnumerable<string> headerLines)
         {
             var headerCollection = new Dictionary<string, HttpHeader>();
 
@@ -112,6 +118,31 @@ namespace MyWebServer.Server.Http
             }
 
             return headerCollection;
+        }
+
+        private static Dictionary<string, HttpCookie> ParseCookies(Dictionary<string, HttpHeader> headers)
+        {
+            var cookieCollection = new Dictionary<string, HttpCookie>();
+
+            if (headers.ContainsKey(HttpHeader.Cookie))
+            {
+                var cookieHeader = headers[HttpHeader.Cookie];
+
+                cookieHeader
+                    .Value
+                    .Split(';')
+                    .Select(c => c.Split('='))
+                    .Select(cp => new
+                    {
+                        Name = cp[0].Trim(),
+                        Value = cp[1].Trim()
+                    })
+                    .ToList()
+                    .ForEach(c => cookieCollection.Add(c.Name, new HttpCookie(c.Name, c.Value)));
+                
+            }
+
+            return cookieCollection;
         }
 
         private static Dictionary<string, string> ParseForm(Dictionary<string, HttpHeader> headers, string body)

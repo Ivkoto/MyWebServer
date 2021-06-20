@@ -1,9 +1,6 @@
-﻿using MyWebServer.Models;
-using MyWebServer.Models.Animals;
-using MyWebServer.Server;
+﻿using MyWebServer.Models.Animals;
 using MyWebServer.Server.Controllers;
 using MyWebServer.Server.Http;
-using MyWebServer.Server.Responses;
 
 namespace MyWebServer.Controllers
 {
@@ -40,7 +37,7 @@ namespace MyWebServer.Controllers
         {
             Name = "Pesho",
             Age = 125,
-            Breed = "No such a dog"
+            Breed = "no such a dog"
         });
 
         public HttpResponse Bunnies() => View("Rabbits");
