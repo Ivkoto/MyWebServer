@@ -1,4 +1,5 @@
-﻿using MyWebServer.Server.Controllers;
+﻿using System;
+using MyWebServer.Server.Controllers;
 using MyWebServer.Server.Http;
 
 namespace MyWebServer.Controllers
@@ -26,6 +27,23 @@ namespace MyWebServer.Controllers
             this.Response.AddCookie("My-SecondCookie", "My-SecondValue");
 
             return Text("Cookies set!");
+        }
+
+
+        public HttpResponse ActionWithSession()
+        {
+            const string currentDateKey = "CurrentDate";
+
+            if (this.Request.Session.ContainsKey(currentDateKey))
+            {
+                var curDate = DateTime.UtcNow.ToString();
+
+                return Text($"Stored date: {curDate}");
+            }
+
+            this.Request.Session[currentDateKey] = DateTime.UtcNow.ToString();
+
+            return Text("Current date stored!");
         }
     }
 }

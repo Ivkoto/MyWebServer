@@ -6,6 +6,8 @@ namespace MyWebServer.Server.Http
 {
     public class HttpRequest
     {
+        private static Dictionary<string, HttpSession> Sessions = new();
+
         private const string newLine = "\r\n";
 
 
@@ -15,13 +17,15 @@ namespace MyWebServer.Server.Http
 
         public IReadOnlyDictionary<string, string> Query { get; private set; }
 
-        public IReadOnlyDictionary<string,string> Form { get; private set; }
-
         public IReadOnlyDictionary<string, HttpHeader> Headers { get; private set; }
 
         public IReadOnlyDictionary<string, HttpCookie> Cookies { get; private set; }
 
+        public IReadOnlyDictionary<string, string> Form { get; private set; }
+
         public string Body { get; private set; }
+
+        public HttpSession Session { get; private set; }
 
 
         public static HttpRequest Parse(string request)
@@ -43,6 +47,8 @@ namespace MyWebServer.Server.Http
 
             var cookies = ParseCookies(headers);
 
+            var session = GetSession(cookies);
+
             var bodyLines = lines.Skip(headers.Count + 2).ToArray();
 
             var body = string.Join(newLine, bodyLines);
@@ -56,12 +62,19 @@ namespace MyWebServer.Server.Http
                 Query = query,
                 Headers = headers,
                 Cookies = cookies,
+                Session = session,
                 Body = body,
                 Form = form
             };
         }
 
-        
+
+        public override string ToString()
+        {
+            //ToDO
+            return null;
+        }
+
 
         private static HttpMethod ParseMethod(string method)
         {
@@ -71,7 +84,7 @@ namespace MyWebServer.Server.Http
                 "POST" => HttpMethod.POST,
                 "PUT" => HttpMethod.PUT,
                 "Delete" => HttpMethod.DELETE,
-                _ => HttpMethod.GET//throw new InvalidOperationException($"Method {method} is not supported.")
+                _ => throw new InvalidOperationException($"Method {method} is not supported.")
             };
         }
 
@@ -85,7 +98,7 @@ namespace MyWebServer.Server.Http
 
             return (path, query);
         }
-        
+
         private static Dictionary<string, string> ParseQuery(string queryString)
             => queryString
                 .Split('&')
@@ -139,10 +152,24 @@ namespace MyWebServer.Server.Http
                     })
                     .ToList()
                     .ForEach(c => cookieCollection.Add(c.Name, new HttpCookie(c.Name, c.Value)));
-                
+
             }
 
             return cookieCollection;
+        }
+
+        private static HttpSession GetSession(Dictionary<string, HttpCookie> cookies)
+        {
+            var sessionId = cookies.ContainsKey(HttpSession.SessionCookieName)
+                ? cookies[HttpSession.SessionCookieName].Value
+                : Guid.NewGuid().ToString();
+
+            if (!Sessions.ContainsKey(sessionId))
+            {
+                Sessions[sessionId] = new HttpSession(sessionId);
+            }
+
+            return Sessions[sessionId];
         }
 
         private static Dictionary<string, string> ParseForm(Dictionary<string, HttpHeader> headers, string body)
