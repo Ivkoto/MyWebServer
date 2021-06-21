@@ -36,7 +36,7 @@ namespace MyWebServer.Controllers
 
             if (this.Request.Session.ContainsKey(currentDateKey))
             {
-                var curDate = DateTime.UtcNow.ToString();
+                var curDate = this.Request.Session[currentDateKey];
 
                 return Text($"Stored date: {curDate}");
             }

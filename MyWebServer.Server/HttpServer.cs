@@ -2,6 +2,7 @@
 using System;
 using System.Net;
 using System.Net.Sockets;
+using System.Runtime.InteropServices.ComTypes;
 using System.Text;
 using System.Threading.Tasks;
 using MyWebServer.Server.Routing;
@@ -48,28 +49,31 @@ namespace MyWebServer.Server
             {
                 var connection = await this.listener.AcceptTcpClientAsync();
 
-                var networkStream = connection.GetStream();
-
-                var requestText = await this.ReadRequest(networkStream);
-
-                try
+                _ = Task.Run(async () =>
                 {
-                    var request = HttpRequest.Parse(requestText);
+                    var networkStream = connection.GetStream();
 
-                    var response = this.routingTable.ExecuteRequest(request);
+                    var requestText = await this.ReadRequest(networkStream);
 
-                    this.PrepareSession(request, response);
+                    try
+                    {
+                        var request = HttpRequest.Parse(requestText);
 
-                    this.LogPipeline(request, response);
+                        var response = this.routingTable.ExecuteRequest(request);
+
+                        this.PrepareSession(request, response);
+
+                        this.LogPipeline(request, response);
                 
-                    await WriteResponse(networkStream, response);
-                }
-                catch (Exception exc)
-                {
-                    await this.HandleError(networkStream, exc);
-                }
+                        await WriteResponse(networkStream, response);
+                    }
+                    catch (Exception exc)
+                    {
+                        await this.HandleError(networkStream, exc);
+                    }
 
-                connection.Close();
+                    connection.Close();
+                });
             }
         }
 
