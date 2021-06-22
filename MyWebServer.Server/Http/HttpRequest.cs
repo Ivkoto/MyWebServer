@@ -67,14 +67,7 @@ namespace MyWebServer.Server.Http
                 Form = form
             };
         }
-
-
-        public override string ToString()
-        {
-            //ToDO
-            return null;
-        }
-
+        
 
         private static HttpMethod ParseMethod(string method)
         {
@@ -166,7 +159,10 @@ namespace MyWebServer.Server.Http
 
             if (!Sessions.ContainsKey(sessionId))
             {
-                Sessions[sessionId] = new HttpSession(sessionId);
+                Sessions[sessionId] = new HttpSession(sessionId)
+                {
+                    IsNew = true
+                };
             }
 
             return Sessions[sessionId];
