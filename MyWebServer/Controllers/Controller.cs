@@ -10,7 +10,7 @@
         public const string UserSessionKey = "AuthenticatedUserId";
 
         private UserIdentity userIdentity;
-        
+
         protected HttpRequest Request { get; init; }
 
         protected HttpResponse Response { get; private init; } = new HttpResponse(HttpStatusCode.OK);

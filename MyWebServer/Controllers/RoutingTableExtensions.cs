@@ -12,7 +12,6 @@
         private static Type stringType = typeof(string);
         private static Type httpResponseType = typeof(HttpResponse);
 
-
         public static IRoutingTable MapGet<TController>(
             this IRoutingTable routingTable,
             string path,
@@ -92,7 +91,7 @@
                 return (HttpResponse)controllerAction.Invoke(controllerInstance, parameterValues);
             };
 
-       private static TController CreateController<TController>(HttpRequest request)
+        private static TController CreateController<TController>(HttpRequest request)
             where TController : Controller
             => (TController)CreateController(typeof(TController), request);
 
@@ -106,7 +105,6 @@
 
             return controller;
         }
-
 
         private static void MapDefaultRoutes(
             IRoutingTable routingTable,
@@ -190,7 +188,9 @@
                     {
                         var propertyValue = request.GetValue(property.Name);
 
-                        property.SetValue(parameterValue, Convert.ChangeType(propertyValue, property.PropertyType));
+                        property.SetValue(
+                            parameterValue, 
+                            Convert.ChangeType(propertyValue, property.PropertyType));
                     }
 
                     parameterValues[i] = parameterValue;
