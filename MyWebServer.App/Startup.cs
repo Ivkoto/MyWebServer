@@ -1,9 +1,9 @@
 ﻿namespace MyWebServer.App
 {
-    using MyWebServer;
-    using MyWebServer.App.Controllers;
-    using MyWebServer.Controllers;
     using System.Threading.Tasks;
+    using MyWebServer;
+    using MyWebServer.Controllers;
+    using MyWebServer.App.Controllers;
 
     public class Startup
     {
@@ -11,8 +11,7 @@
             => await new HttpServer(routes => routes
                 .MapStaticFiles()
                 .MapControllers()
-                .MapGet<HomeController>("/ToCats", c => c.LocalRedirect())
-                .MapPost<CatsController>("/Cats/Save", c => c.Save()))
+                .MapGet<HomeController>("/ToCats", c => c.LocalRedirect()))
             .Start();
     }
 }
