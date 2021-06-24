@@ -1,8 +1,8 @@
 ﻿namespace MyWebServer.Results
 {
-    using MyWebServer.Http;
     using System.IO;
-    using System.Linq;
+    using MyWebServer.Http;
+    using MyWebServer.Results.Views;
 
     public class ViewResult : ActionResult
     {
@@ -10,13 +10,15 @@
 
         public ViewResult(
             HttpResponse response,
+            IViewEngine viewEngine,
             string viewName, 
             string controllerName, 
-            object model)
+            object model,
+            string userId)
             : base(response) 
-            => this.GetHtml(viewName, controllerName, model);
+            => this.GetHtml(viewEngine, viewName, controllerName, model, userId);
 
-        private void GetHtml(string viewName, string controllerName, object model)
+        private void GetHtml(IViewEngine viewEngine, string viewName, string controllerName, object model, string userId)
         {
             if (!viewName.Contains(PathSeparator))
             {
@@ -34,11 +36,6 @@
 
             var viewContent = File.ReadAllText(viewPath);
 
-            if (model != null)
-            {
-                viewContent = this.PopulateModel(viewContent, model);
-            }
-
             var layoutPath = Path.GetFullPath("./Views/Layout.cshtml");
 
             if (File.Exists(layoutPath))
@@ -46,6 +43,11 @@
                 var layoutContent = File.ReadAllText(layoutPath);
 
                 viewContent = layoutContent.Replace("@RenderBody()", viewContent);
+            }
+
+            if (model != null)
+            {
+                viewContent = viewEngine.RenderHtml(viewContent, model, userId);
             }
 
             this.SetContent(viewContent, HttpContentType.Html);
@@ -58,25 +60,6 @@
             var errorMessage = $"View '{viewPath}' was not found.";
 
             this.SetContent(errorMessage, HttpContentType.PlainText);
-        }
-
-        private string PopulateModel(string viewContent, object model)
-        {
-            var data = model
-                .GetType()
-                .GetProperties()
-                .Select(pr => new
-                {
-                    pr.Name,
-                    Value = pr.GetValue(model)
-                });
-
-            foreach (var entry in data)
-            {
-                viewContent = viewContent.Replace($"@Model.{entry.Name}", entry.Value.ToString());
-            }
-
-            return viewContent;
         }
     }
 }
