@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using Microsoft.VisualBasic;
 
 namespace MyWebServer.Controllers
 {
@@ -80,6 +81,9 @@ namespace MyWebServer.Controllers
 
         protected ActionResult View(object model, [CallerMemberName] string viewName = "")
             => this.GetViewResult(viewName, model);
+
+        protected ActionResult Error(string error)
+            => Error(new[] {error});
 
         protected ActionResult Error(IEnumerable<string> errors)
             => this.View("./Error", errors);
