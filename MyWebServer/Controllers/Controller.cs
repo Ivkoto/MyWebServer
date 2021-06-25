@@ -1,4 +1,6 @@
-﻿namespace MyWebServer.Controllers
+﻿using System.Collections.Generic;
+
+namespace MyWebServer.Controllers
 {
     using MyWebServer.Http;
     using MyWebServer.Identity;
@@ -78,6 +80,9 @@
 
         protected ActionResult View(object model, [CallerMemberName] string viewName = "")
             => this.GetViewResult(viewName, model);
+
+        protected ActionResult Error(IEnumerable<string> errors)
+            => this.View("./Error", errors);
 
         private ActionResult GetViewResult(string viewName, object model)
             => new ViewResult(this.Response, this.ViewEngine, viewName, this.GetType().GetControllerName(), model, this.User.Id);
