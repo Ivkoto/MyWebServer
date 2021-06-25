@@ -1,4 +1,6 @@
-﻿namespace MyWebServer.Results
+﻿using Microsoft.CodeAnalysis;
+
+namespace MyWebServer.Results
 {
     using System.IO;
     using MyWebServer.Http;
@@ -37,9 +39,9 @@
 
             var viewContent = File.ReadAllText(viewPath);
 
-            var layoutPath = Path.GetFullPath("./Views/Layout.cshtml");
+            var (layoutPath, layoutExists) = FindLayout();
 
-            if (File.Exists(layoutPath))
+            if (layoutExists)
             {
                 var layoutContent = File.ReadAllText(layoutPath);
 
@@ -68,6 +70,34 @@
             }
 
             return (viewPath, exists);
+        }
+
+
+        private (string, bool) FindLayout()
+        {
+            string layoutPath = null;
+            bool exists = false;
+
+            foreach (var fileExtension in ViewFileExtensions)
+            {
+                layoutPath = Path.GetFullPath($"./Views/Layout.{fileExtension}");
+
+                if (File.Exists(layoutPath))
+                {
+                    exists = true;
+                    break;
+                }
+
+                layoutPath = Path.GetFullPath($"./Views/Shared/_Layout.{fileExtension}");
+
+                if (File.Exists(layoutPath))
+                {
+                    exists = true;
+                    break;
+                }
+
+                return (layoutPath, exists);
+            }
         }
 
         private void PrepareMissingViewError(string viewPath)
