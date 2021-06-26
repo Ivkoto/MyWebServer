@@ -70,6 +70,9 @@ namespace MyWebServer.Controllers
         protected ActionResult BadRequest()
             => new BadRequestResult(this.Response);
 
+        protected ActionResult Unauthorized()
+            => new UnauthorizedResult(this.Response);
+
         protected ActionResult Redirect(string location)
             => new RedirectResult(this.Response, location);
 
